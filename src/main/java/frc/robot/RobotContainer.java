@@ -10,6 +10,7 @@ import com.ctre.phoenix6.CANBus.CANBusStatus;
 import com.pathplanner.lib.commands.PathfindingCommand;
 import dev.doglog.DogLog;
 import edu.wpi.first.hal.HALUtil;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -46,6 +47,8 @@ import frc.robot.subsystems.groundIntake.GroundIntakeSubsystem;
 import java.util.function.BiConsumer;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
+
+import org.photonvision.PhotonPoseEstimator;
 
 public class RobotContainer {
 
@@ -97,6 +100,9 @@ public class RobotContainer {
   private final GroundIntakeSubsystem groundIntake = new GroundIntakeSubsystem();
   private final ClimbSubsystem climb = new ClimbSubsystem();
   private final DriveCommand driveCommand;
+
+  private final SwerveDrivePoseEstimator odometryOnlyPoseEstimator;
+  private final SwerveDrivePoseEstimator reefOnlyPoseEstimator;
 
   public enum CoralLevel {
     L1(ElevatorConstants.L1_PREP_POSITION, ArmConstants.L1_PREP_POSITION),
@@ -154,25 +160,25 @@ public class RobotContainer {
             new AprilTagCam(
                 AprilTagCamConstants.FRONT_LEFT_CAMERA_COMP_NAME,
                 AprilTagCamConstants.FRONT_LEFT_CAMERA_LOCATION_COMP,
-                drivetrain::addVisionMeasurent,
                 () -> drivetrain.getPose(),
-                () -> drivetrain.getState().Speeds);
+                () -> drivetrain.getState().Speeds,
+                drivetrain::addVisionMeasurent);
 
         frontRightCam =
             new AprilTagCam(
                 AprilTagCamConstants.FRONT_RIGHT_CAMERA_COMP_NAME,
                 AprilTagCamConstants.FRONT_RIGHT_CAMERA_LOCATION_COMP,
-                drivetrain::addVisionMeasurent,
                 () -> drivetrain.getPose(),
-                () -> drivetrain.getState().Speeds);
+                () -> drivetrain.getState().Speeds,
+                drivetrain::addVisionMeasurent);
 
         backRightCam =
             new AprilTagCam(
                 AprilTagCamConstants.BACK_RIGHT_CAMERA_COMP_NAME,
                 AprilTagCamConstants.BACK_RIGHT_CAMERA_LOCATION_COMP,
-                drivetrain::addVisionMeasurent,
                 () -> drivetrain.getPose(),
-                () -> drivetrain.getState().Speeds);
+                () -> drivetrain.getState().Speeds,
+                drivetrain::addVisionMeasurent);
         break;
       case DEV:
         drivetrain = TunerConstants_practiceDrivetrain.createDrivetrain();
@@ -180,17 +186,17 @@ public class RobotContainer {
             new AprilTagCam(
                 AprilTagCamConstants.FRONT_LEFT_CAMERA_DEV_NAME,
                 AprilTagCamConstants.FRONT_LEFT_CAMERA_LOCATION_DEV,
-                drivetrain::addVisionMeasurent,
                 () -> drivetrain.getPose(),
-                () -> drivetrain.getState().Speeds);
+                () -> drivetrain.getState().Speeds,
+                drivetrain::addVisionMeasurent);
 
         frontRightCam =
             new AprilTagCam(
                 AprilTagCamConstants.FRONT_RIGHT_CAMERA_DEV_NAME,
                 AprilTagCamConstants.FRONT_RIGHT_CAMERA_LOCATION_DEV,
-                drivetrain::addVisionMeasurent,
                 () -> drivetrain.getPose(),
-                () -> drivetrain.getState().Speeds);
+                () -> drivetrain.getState().Speeds,
+                drivetrain::addVisionMeasurent);
         break;
       case WALLE:
         drivetrain = TunerConstants_WALLE.createDrivetrain();
@@ -199,6 +205,22 @@ public class RobotContainer {
         drivetrain = TunerConstants_Comp.createDrivetrain(); // Fallback
         break;
     }
+
+    odometryOnlyPoseEstimator = drivetrain.createPoseEstimator();
+    reefOnlyPoseEstimator = drivetrain.createPoseEstimator();
+
+    if(frontLeftCam != null) {
+      frontLeftCam.registerPoseEstimator(reefOnlyPoseEstimator, PhotonPoseEstimator.PoseStrategy.AVERAGE_BEST_TARGETS, AprilTagCamConstants.getReefAprilTags());
+    }
+
+    if(frontRightCam != null) {
+
+    }
+
+    if(backRightCam != null) {
+
+    }
+
 
     driveCommand =
         new DriveCommand(m_driverController, drivetrain, () -> elevator.getHeightMeters());
@@ -576,6 +598,9 @@ public class RobotContainer {
     DogLog.log("Trigger/Is Coral Loaded", IS_CORAL_LOADED.getAsBoolean());
 
     DogLog.log("Match Timer", DriverStation.getMatchTime());
+
+    DogLog.log("Pose Estimator/odometry only", odometryOnlyPoseEstimator.getEstimatedPosition());
+    DogLog.log("Pose Estimator/reef only", odometryOnlyPoseEstimator.getEstimatedPosition());
   }
 
   /**
