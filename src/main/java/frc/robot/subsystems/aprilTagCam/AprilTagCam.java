@@ -104,7 +104,7 @@ public class AprilTagCam {
     }
 
     for (PhotonPipelineResult targetPose : results) {
-      photonEstimator.update(targetPose);
+      optionalEstimPose = photonEstimator.update(targetPose);
 
       if (optionalEstimPose.isEmpty()) {
         continue;
@@ -112,9 +112,9 @@ public class AprilTagCam {
 
       Pose3d estimPose3d = optionalEstimPose.get().estimatedPose;
 
-      if (!filterResults(estimPose3d, optionalEstimPose.get(), currRobotSpeed.get())) {
-        continue;
-      }
+      // if (!filterResults(estimPose3d, optionalEstimPose.get(), currRobotSpeed.get())) {
+      //   continue;
+      // }
 
       Pose2d pos = estimPose3d.toPose2d(); // yay :0 im so happy
       double timestamp = Utils.fpgaToCurrentTime(targetPose.getTimestampSeconds());
@@ -125,7 +125,7 @@ public class AprilTagCam {
       DogLog.log(ntKey + "Accepted Time Stamp/", timestamp);
       DogLog.log(ntKey + "Accepted Stdev/", getSDArray(sd));
 
-      addVisionMeasurement.accept(null);
+      addVisionMeasurement.accept(helper);
 
       for (int i = 0; i < poseEstimators.size(); i++) {
         optionalEstimPose = photonPoseEstimators.get(i).update(targetPose);
@@ -136,9 +136,9 @@ public class AprilTagCam {
 
         estimPose3d = optionalEstimPose.get().estimatedPose;
 
-        if (!filterResults(estimPose3d, optionalEstimPose.get(), currRobotSpeed.get())) {
-          continue;
-        }
+        // if (!filterResults(estimPose3d, optionalEstimPose.get(), currRobotSpeed.get())) {
+        //   continue;
+        // }
 
         pos = estimPose3d.toPose2d(); // yay :0 im so happy
         timestamp = Utils.fpgaToCurrentTime(targetPose.getTimestampSeconds());
@@ -148,7 +148,7 @@ public class AprilTagCam {
         DogLog.log(ntKey + "Accepted Time Stamp/", timestamp);
         DogLog.log(ntKey + "Accepted Stdev/", getSDArray(sd));
 
-        poseEstimators.get(i).addVisionMeasurement(robotPose, timestamp, sd);
+        poseEstimators.get(i).addVisionMeasurement(pos, timestamp, sd);
       }
     }
 
@@ -213,7 +213,8 @@ public class AprilTagCam {
     double numOfTags = 0;
     ArrayList<Pose3d> tagList = new ArrayList<Pose3d>();
     for (PhotonTrackedTarget target : optionalEstimPose.targetsUsed) {
-      Optional<Pose3d> tagPoseOptional = AprilTagCamConstants.getAllAprilTags().getTagPose(target.getFiducialId());
+      Optional<Pose3d> tagPoseOptional =
+          AprilTagCamConstants.getAllAprilTags().getTagPose(target.getFiducialId());
       if (tagPoseOptional.isEmpty()) {
         continue;
       }

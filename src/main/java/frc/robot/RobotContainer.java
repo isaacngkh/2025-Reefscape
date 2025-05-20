@@ -47,7 +47,6 @@ import frc.robot.subsystems.groundIntake.GroundIntakeSubsystem;
 import java.util.function.BiConsumer;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
-
 import org.photonvision.PhotonPoseEstimator;
 
 public class RobotContainer {
@@ -103,6 +102,7 @@ public class RobotContainer {
 
   private final SwerveDrivePoseEstimator odometryOnlyPoseEstimator;
   private final SwerveDrivePoseEstimator reefOnlyPoseEstimator;
+  private final SwerveDrivePoseEstimator coralStationOnlyPoseEstimator;
 
   public enum CoralLevel {
     L1(ElevatorConstants.L1_PREP_POSITION, ArmConstants.L1_PREP_POSITION),
@@ -208,19 +208,40 @@ public class RobotContainer {
 
     odometryOnlyPoseEstimator = drivetrain.createPoseEstimator();
     reefOnlyPoseEstimator = drivetrain.createPoseEstimator();
+    coralStationOnlyPoseEstimator = drivetrain.createPoseEstimator();
 
-    if(frontLeftCam != null) {
-      frontLeftCam.registerPoseEstimator(reefOnlyPoseEstimator, PhotonPoseEstimator.PoseStrategy.AVERAGE_BEST_TARGETS, AprilTagCamConstants.getReefAprilTags());
+    if (frontLeftCam != null) {
+      frontLeftCam.registerPoseEstimator(
+          reefOnlyPoseEstimator,
+          PhotonPoseEstimator.PoseStrategy.AVERAGE_BEST_TARGETS,
+          AprilTagCamConstants.getReefAprilTags());
+      frontLeftCam.registerPoseEstimator(
+          coralStationOnlyPoseEstimator,
+          PhotonPoseEstimator.PoseStrategy.AVERAGE_BEST_TARGETS,
+          AprilTagCamConstants.getCoralStationAprilTags());
     }
 
-    if(frontRightCam != null) {
-
+    if (frontRightCam != null) {
+      frontRightCam.registerPoseEstimator(
+          reefOnlyPoseEstimator,
+          PhotonPoseEstimator.PoseStrategy.AVERAGE_BEST_TARGETS,
+          AprilTagCamConstants.getReefAprilTags());
+      frontRightCam.registerPoseEstimator(
+          coralStationOnlyPoseEstimator,
+          PhotonPoseEstimator.PoseStrategy.AVERAGE_BEST_TARGETS,
+          AprilTagCamConstants.getCoralStationAprilTags());
     }
 
-    if(backRightCam != null) {
-
+    if (backRightCam != null) {
+      backRightCam.registerPoseEstimator(
+          reefOnlyPoseEstimator,
+          PhotonPoseEstimator.PoseStrategy.AVERAGE_BEST_TARGETS,
+          AprilTagCamConstants.getReefAprilTags());
+      backRightCam.registerPoseEstimator(
+          coralStationOnlyPoseEstimator,
+          PhotonPoseEstimator.PoseStrategy.AVERAGE_BEST_TARGETS,
+          AprilTagCamConstants.getCoralStationAprilTags());
     }
-
 
     driveCommand =
         new DriveCommand(m_driverController, drivetrain, () -> elevator.getHeightMeters());
@@ -600,7 +621,9 @@ public class RobotContainer {
     DogLog.log("Match Timer", DriverStation.getMatchTime());
 
     DogLog.log("Pose Estimator/odometry only", odometryOnlyPoseEstimator.getEstimatedPosition());
-    DogLog.log("Pose Estimator/reef only", odometryOnlyPoseEstimator.getEstimatedPosition());
+    DogLog.log("Pose Estimator/reef only", reefOnlyPoseEstimator.getEstimatedPosition());
+    DogLog.log(
+        "Pose Estimator/coral station only", coralStationOnlyPoseEstimator.getEstimatedPosition());
   }
 
   /**

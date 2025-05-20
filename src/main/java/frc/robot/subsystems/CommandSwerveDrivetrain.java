@@ -314,7 +314,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     DogLog.log("Swerve/Pigeon Connected", gyro.isConnected());
 
-    Rotation2d currRotation = getPigeon2().getRotation2d();
+    Rotation2d currRotation = getRotation();
     SwerveModulePosition[] currModulePositions =
         new SwerveModulePosition[] {
           getModule(0).getCachedPosition(),

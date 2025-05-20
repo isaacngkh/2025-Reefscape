@@ -1,8 +1,5 @@
 package frc.robot.subsystems.aprilTagCam;
 
-import java.io.IOException;
-import java.nio.file.Path;
-
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
@@ -12,12 +9,14 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Filesystem;
+import java.io.IOException;
+import java.nio.file.Path;
 
 public class AprilTagCamConstants {
   public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(1, 1, 8);
   public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(0.5, 0.5, 1);
 
-  public static final String FRONT_LEFT_CAMERA_COMP_NAME = "leftcam";
+  public static final String FRONT_LEFT_CAMERA_COMP_NAME = "Camera_Module_v1";
   public static final String FRONT_RIGHT_CAMERA_COMP_NAME = "rightcam";
   public static final String BACK_LEFT_CAMERA_COMP_NAME = "leftcam";
   public static final String BACK_RIGHT_CAMERA_COMP_NAME = "back_right_cam";
@@ -74,6 +73,7 @@ public class AprilTagCamConstants {
   public static final double MAX_ROTATION = Math.PI;
 
   private static AprilTagFieldLayout reefAprilTags;
+  private static AprilTagFieldLayout coralStationAprilTags;
   private static AprilTagFieldLayout allAprilTags;
 
   public static AprilTagFieldLayout getReefAprilTags() {
@@ -82,7 +82,7 @@ public class AprilTagCamConstants {
     }
 
     try {
-        reefAprilTags =
+      reefAprilTags =
           new AprilTagFieldLayout(
               Path.of(Filesystem.getDeployDirectory().getPath(), "welded/2025-reef.json"));
     } catch (IOException e) {
@@ -98,7 +98,7 @@ public class AprilTagCamConstants {
     }
 
     try {
-        allAprilTags =
+      allAprilTags =
           new AprilTagFieldLayout(
               Path.of(Filesystem.getDeployDirectory().getPath(), "welded/2025-officail.json"));
     } catch (IOException e) {
@@ -106,5 +106,21 @@ public class AprilTagCamConstants {
     }
 
     return allAprilTags;
+  }
+
+  public static AprilTagFieldLayout getCoralStationAprilTags() {
+    if (coralStationAprilTags != null) {
+      return coralStationAprilTags;
+    }
+
+    try {
+      coralStationAprilTags =
+          new AprilTagFieldLayout(
+              Path.of(Filesystem.getDeployDirectory().getPath(), "welded/2025-coral-station.json"));
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+    return coralStationAprilTags;
   }
 }
