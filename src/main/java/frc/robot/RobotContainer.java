@@ -225,8 +225,7 @@ public class RobotContainer {
             climb,
             groundIntake,
             m_driverController,
-            m_operatorController,
-            driveCommand);
+            m_operatorController);
 
     SmartDashboard.putData("Command Scheduler", CommandScheduler.getInstance());
     SmartDashboard.putData("Unprep Climb", commandFactory.unPrepClimbCommand());

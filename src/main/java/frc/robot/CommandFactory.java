@@ -12,7 +12,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.RobotContainer.CoralLevel;
 import frc.robot.commands.AlignToPose;
-import frc.robot.commands.DriveCommand;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.CommandSwerveDrivetrain.TargetMode;
 import frc.robot.subsystems.arm.ArmConstants;
@@ -46,8 +45,7 @@ public class CommandFactory {
       ClimbSubsystem climb,
       GroundIntakeSubsystem groundIntake,
       CommandXboxController driverController,
-      CommandXboxController operatorController,
-      DriveCommand driveCommand) {
+      CommandXboxController operatorController) {
     this.drivetrain = drivetrain;
     this.arm = arm;
     this.elevator = elevator;
